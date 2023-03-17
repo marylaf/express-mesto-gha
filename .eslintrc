@@ -1,0 +1,9 @@
+{
+  "extends": "airbnb-base",
+  "globals": {
+    "_id": true
+  },
+  "rules": {
+    "quotes": [  { "avoidEscape": true }]
+  }
+}
