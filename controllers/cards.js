@@ -8,9 +8,12 @@ const getCards = (req, res) => {
 
 const createCard = (req, res) => {
   const { name, link } = req.body;
-  Card.create({ name, link })
+  const owner = req.user._id;
+
+  Card.create({ name, link, owner })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
+      console.log("ERR", err, req.body);
       if (err.name === "ValidationError") {
         return res.status(400).send({ message: "Ошибка запроса" });
       }
