@@ -12,9 +12,9 @@ const createCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(400).send({ message: "Ошибка запроса" });
+        return res.status(400).send({ message: "Ошибка запроса" });
       }
-      res.status(500).send({ message: "Ошибка" });
+      return res.status(500).send({ message: "Ошибка" });
     });
 };
 
