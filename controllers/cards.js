@@ -13,7 +13,7 @@ const createCard = (req, res) => {
   Card.create({ name, link, owner })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
-      console.log("ERR", err, req.body);
+      // console.log("ERR", err, req.body);
       if (err.name === "ValidationError") {
         return res.status(400).send({ message: "Ошибка запроса" });
       }
@@ -22,7 +22,8 @@ const createCard = (req, res) => {
 };
 
 const deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params)
+  const { cardId } = req.params;
+  Card.findByIdAndRemove(cardId)
     .then((card) => {
       if (!card) {
         return res
@@ -31,7 +32,10 @@ const deleteCard = (req, res) => {
       }
       res.send({ data: card });
     })
-    .catch((err) => res.status(500).send({ message: "Ошибка" }));
+    .catch((err) => {
+      console.log("ERR", err, req.body);
+      res.status(500).send({ message: "Ошибка" });
+    });
 };
 
 const addLike = (req, res) => {
