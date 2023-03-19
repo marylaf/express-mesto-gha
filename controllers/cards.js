@@ -33,27 +33,31 @@ const deleteCard = (req, res) => {
       res.send({ data: card });
     })
     .catch((err) => {
-      console.log("ERR", err, req.body);
       res.status(500).send({ message: "Ошибка" });
     });
 };
 
 const addLike = (req, res) => {
+  const { cardId } = req.params;
+  const userId = req.user._id;
+
   Card.findByIdAndUpdate(
-    req.params.id,
-    { $addToSet: { likes: req.user._id } },
+    cardId,
+    { $addToSet: { likes: userId } },
     { new: true }
   )
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: "Ошибка" }));
+    .catch((err) => {
+      console.log("ERR", err, req.body);
+      res.status(500).send({ message: "Ошибка" });
+    });
 };
 
 const deleteLike = (req, res) => {
-  Card.findByIdAndUpdate(
-    req.params.id,
-    { $pull: { likes: req.user._id } },
-    { new: true }
-  )
+  const { cardId } = req.params;
+  const userId = req.user._id;
+
+  Card.findByIdAndUpdate(cardId, { $pull: { likes: userId } }, { new: true })
     .then((card) => res.send({ data: card }))
     .catch((err) => res.status(500).send({ message: "Ошибка" }));
 };
