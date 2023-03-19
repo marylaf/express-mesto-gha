@@ -48,8 +48,11 @@ const addLike = (req, res) => {
   )
     .then((card) => res.send({ data: card }))
     .catch((err) => {
-      console.log("ERR", err, req.body);
-      res.status(500).send({ message: "Ошибка" });
+      // console.log("ERR", err, req.body);
+      if (err.name === "ValidationError") {
+        return res.status(400).send({ message: "Ошибка запроса" });
+      }
+      return res.status(500).send({ message: "Ошибка" });
     });
 };
 
@@ -59,7 +62,12 @@ const deleteLike = (req, res) => {
 
   Card.findByIdAndUpdate(cardId, { $pull: { likes: userId } }, { new: true })
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: "Ошибка" }));
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        return res.status(400).send({ message: "Ошибка запроса" });
+      }
+      return res.status(500).send({ message: "Ошибка" });
+    });
 };
 
 module.exports = {
