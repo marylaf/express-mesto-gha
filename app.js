@@ -18,6 +18,12 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  const error = new Error('Запрашиваемый ресурс не найден');
+  error.status = 404;
+  next(error);
+});
+
 const { PORT = 3000 } = process.env;
 
 app.listen(PORT, () => {
