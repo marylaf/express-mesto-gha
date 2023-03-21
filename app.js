@@ -1,18 +1,18 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const userRouter = require("./routes/users");
-const cardRouter = require("./routes/cards");
+const express = require('express');
+const mongoose = require('mongoose');
+const userRouter = require('./routes/users');
+const cardRouter = require('./routes/cards');
 
 const app = express();
 
-mongoose.connect("mongodb://localhost:27017/mestodb", {
+mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
 app.use((req, res, next) => {
   req.user = {
-    _id: "64139cc148008318561dc320",
+    _id: '64139cc148008318561dc320',
   };
 
   next();
@@ -26,6 +26,6 @@ app.listen(PORT, () => {
 
 app.use(express.json());
 
-app.use("/", userRouter);
+app.use('/', userRouter);
 
-app.use("/", cardRouter);
+app.use('/', cardRouter);

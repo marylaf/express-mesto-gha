@@ -1,11 +1,11 @@
-const Card = require("../models/card");
-const { SERVER_ERROR, BAD_REQUEST, NOT_FOUND } = require("../errors/errors");
+const Card = require('../models/card');
+const { SERVER_ERROR, BAD_REQUEST, NOT_FOUND } = require('../errors/errors');
 
 const getCards = (req, res) => {
   Card.find(req.params)
     .then((card) => res.send({ data: card }))
     .catch(() => {
-      res.status(SERVER_ERROR).send({ message: "Внутренняя ошибка сервера" });
+      res.status(SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
     });
 };
 
@@ -17,12 +17,12 @@ const createCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       // console.log("ERR", err, req.body);
-      if (err.name === "ValidationError") {
-        return res.status(BAD_REQUEST).send({ message: "Некорректный запрос" });
+      if (err.name === 'ValidationError') {
+        return res.status(BAD_REQUEST).send({ message: 'Некорректный запрос' });
       }
       return res
         .status(SERVER_ERROR)
-        .send({ message: "Внутренняя ошибка сервера" });
+        .send({ message: 'Внутренняя ошибка сервера' });
     });
 };
 
@@ -33,17 +33,17 @@ const deleteCard = (req, res) => {
       if (!card) {
         return res
           .status(NOT_FOUND)
-          .send({ message: "Такой карточки не существует" });
+          .send({ message: 'Такой карточки не существует' });
       }
       return res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({ message: "Некорректный запрос" });
+      if (err.name === 'CastError') {
+        return res.status(BAD_REQUEST).send({ message: 'Некорректный запрос' });
       }
       return res
         .status(SERVER_ERROR)
-        .send({ message: "Внутренняя ошибка сервера" });
+        .send({ message: 'Внутренняя ошибка сервера' });
     });
 };
 
@@ -54,17 +54,24 @@ const addLike = (req, res) => {
   Card.findByIdAndUpdate(
     cardId,
     { $addToSet: { likes: userId } },
-    { new: true }
+    { new: true },
   )
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (!card) {
+        return res
+          .status(NOT_FOUND)
+          .send({ message: 'Такой карточки не существует' });
+      }
+      return res.send({ data: card });
+    })
     .catch((err) => {
       // console.log("ERR", err, req.body);
-      if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({ message: "Некорректный запрос" });
+      if (err.name === 'CastError') {
+        return res.status(BAD_REQUEST).send({ message: 'Некорректный запрос' });
       }
       return res
         .status(SERVER_ERROR)
-        .send({ message: "Внутренняя ошибка сервера" });
+        .send({ message: 'Внутренняя ошибка сервера' });
     });
 };
 
@@ -77,17 +84,17 @@ const deleteLike = (req, res) => {
       if (!card) {
         return res
           .status(NOT_FOUND)
-          .send({ message: "Такой карточки не существует" });
+          .send({ message: 'Такой карточки не существует' });
       }
       return res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({ message: "Некорректный запрос" });
+      if (err.name === 'CastError') {
+        return res.status(BAD_REQUEST).send({ message: 'Некорректный запрос' });
       }
       return res
         .status(SERVER_ERROR)
-        .send({ message: "Внутренняя ошибка сервера" });
+        .send({ message: 'Внутренняя ошибка сервера' });
     });
 };
 
