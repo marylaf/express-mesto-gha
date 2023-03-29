@@ -1,5 +1,9 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { SERVER_ERROR, BAD_REQUEST, NOT_FOUND } = require('../errors/errors');
+const {
+  SERVER_ERROR, BAD_REQUEST, NOT_FOUND, UNAUTHORIZED,
+} = require('../errors/errors');
 
 const getUsers = (req, res) => {
   User.find(req.params)
@@ -30,10 +34,13 @@ const getUser = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
-  // записываем данные в базу
-  User.create({ name, about, avatar })
+  bcrypt.hash(password, 10).then((hash) => User.create({
+    name, about, avatar, email, password: hash,
+  }))
     // возвращаем записанные в базу данные пользователю
     .then((user) => res.send({ data: user }))
     // если данные не записались, вернём ошибку
@@ -104,10 +111,38 @@ const updateAvatar = (req, res) => {
     });
 };
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  User.findOne({ email })
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+
+      return bcrypt.compare(password, user.password);
+    })
+    .then((matched) => {
+      if (!matched) {
+        // хеши не совпали — отклоняем промис
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+
+      // аутентификация успешна
+      return res.send({ message: 'Всё верно!' });
+    })
+    .catch(() => {
+      res
+        .status(UNAUTHORIZED)
+        .send({ message: 'Неправильные почта или пароль' });
+    });
+};
+
 module.exports = {
   getUsers,
   getUser,
   createUser,
   updateAvatar,
   updateProfile,
+  login,
 };
