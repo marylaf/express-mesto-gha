@@ -1,5 +1,7 @@
 const Card = require('../models/card');
-const { SERVER_ERROR, BAD_REQUEST, NOT_FOUND } = require('../errors/errors');
+const {
+  SERVER_ERROR, BAD_REQUEST, NOT_FOUND, FORBIDDEN,
+} = require('../errors/errors');
 
 const getCards = (req, res) => {
   Card.find(req.params)
@@ -28,16 +30,24 @@ const createCard = (req, res) => {
 
 const deleteCard = (req, res) => {
   const { cardId } = req.params;
-  Card.findByIdAndRemove(cardId)
+  const userId = req.user._id;
+
+  Card.findById(cardId)
     .then((card) => {
       if (!card) {
         return res
           .status(NOT_FOUND)
           .send({ message: 'Такой карточки не существует' });
       }
-      return res.send({ data: card });
-    })
-    .catch((err) => {
+
+      // Проверьте, является ли пользователь владельцем карточки
+      if (card.owner.toString() !== userId) {
+        return res
+          .status(FORBIDDEN)
+          .send({ message: 'У вас нет прав для удаления этой карточки' });
+      }
+      return Card.findByIdAndRemove(cardId).then((deletedCard) => res.send({ data: deletedCard }));
+    }).catch((err) => {
       if (err.name === 'CastError') {
         return res.status(BAD_REQUEST).send({ message: 'Некорректный запрос' });
       }

@@ -4,6 +4,7 @@ const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { createUser } = require('./controllers/users');
 const { login } = require('./controllers/users');
+const auth = require('./middlewares/auth');
 
 const app = express();
 
@@ -12,13 +13,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '64139cc148008318561dc320',
-  };
-
-  next();
-});
+app.use(express.json());
 
 app.post('/signin', login);
 app.post('/signup', createUser);
@@ -29,8 +24,6 @@ app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
 
-app.use(express.json());
+app.use('/', auth, userRouter);
 
-app.use('/', userRouter);
-
-app.use('/', cardRouter);
+app.use('/', auth, cardRouter);

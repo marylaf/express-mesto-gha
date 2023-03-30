@@ -13,6 +13,28 @@ const getUsers = (req, res) => {
     });
 };
 
+const getCurrentUser = (req, res) => {
+  const userId = req.user._id;
+
+  User.findById(userId)
+    .then((user) => {
+      if (!user) {
+        return res
+          .status(NOT_FOUND)
+          .send({ message: 'Такого пользователя не существует' });
+      }
+      return res.send({ data: user });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(BAD_REQUEST).send({ message: 'Некорректный запрос' });
+      }
+      return res
+        .status(SERVER_ERROR)
+        .send({ message: 'Внутренняя ошибка сервера' });
+    });
+};
+
 const getUser = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
@@ -137,4 +159,5 @@ module.exports = {
   updateAvatar,
   updateProfile,
   login,
+  getCurrentUser,
 };
