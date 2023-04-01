@@ -20,10 +20,22 @@ app.post('/signup', createUser);
 
 const { PORT = 3000 } = process.env;
 
+app.use((err, req, res, next) => {
+  // если у ошибки нет статуса, выставляем 500
+  const { statusCode = 500, message } = err;
+
+  res
+    .status(statusCode)
+    .send({
+      message: statusCode === 500
+        ? 'Внутренняя ошибка сервера'
+        : message,
+    });
+  next();
+});
+app.use('/', auth, userRouter);
+app.use('/', auth, cardRouter);
+
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
-
-app.use('/', auth, userRouter);
-
-app.use('/', auth, cardRouter);
