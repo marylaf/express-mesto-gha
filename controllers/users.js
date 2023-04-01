@@ -4,6 +4,7 @@ const User = require('../models/user');
 const BadRequest = require('../errors/bad-request-err');
 const NotFound = require('../errors/not-found-err');
 const Unauthorized = require('../errors/unauthorized-err');
+const ConflictError = require('../errors/conflict-err');
 const { OK } = require('../utils/constants');
 
 const getUsers = (req, res, next) => {
@@ -62,6 +63,10 @@ const createUser = (req, res, next) => {
     .then((user) => res.status(OK).send({ data: user }))
     // если данные не записались, вернём ошибку
     .catch((err) => {
+      if (err.code === 11000) {
+        const error = new ConflictError('Пользователь с таким email уже существует');
+        return next(error);
+      }
       if (err.name === 'ValidationError') {
         const error = new BadRequest('Некорректный запрос');
         return next(error);
