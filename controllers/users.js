@@ -8,8 +8,8 @@ const ConflictError = require('../errors/conflict-err');
 const { OK } = require('../utils/constants');
 
 const getUsers = (req, res, next) => {
-  User.find(req.params)
-    .then((user) => res.status(OK).send({ data: user }))
+  User.find({})
+    .then((users) => res.status(OK).send(users))
     .catch((err) => {
       console.log('ERR', err, req.body);
       next(err);
@@ -20,24 +20,6 @@ const getCurrentUser = (req, res, next) => {
   const userId = req.user._id;
 
   User.findById(userId)
-    .then((user) => {
-      if (!user) {
-        const error = new NotFound('Такого пользователя не существует');
-        return next(error);
-      }
-      return res.status(OK).send({ data: user });
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        const error = new BadRequest('Некорректный запрос');
-        return next(error);
-      }
-      return next(err);
-    });
-};
-
-const getUser = (req, res, next) => {
-  User.findById(req.params.id)
     .then((user) => {
       if (!user) {
         const error = new NotFound('Такого пользователя не существует');
@@ -124,6 +106,7 @@ const updateAvatar = (req, res, next) => {
       return res.status(OK).send({ data: user });
     })
     .catch((err) => {
+      // console.log('ERR', err, req.body);
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         const error = new BadRequest('Некорректный запрос');
         return next(error);
@@ -137,7 +120,7 @@ const login = (req, res, next) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'your-secret-key', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       res.cookie('jwt', token, {
         httpOnly: true,
         maxAge: 3600000 * 24 * 7,
@@ -152,7 +135,6 @@ const login = (req, res, next) => {
 
 module.exports = {
   getUsers,
-  getUser,
   createUser,
   updateAvatar,
   updateProfile,
