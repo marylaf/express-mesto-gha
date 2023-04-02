@@ -10,7 +10,10 @@ const { OK } = require('../utils/constants');
 const getUsers = (req, res, next) => {
   User.find(req.params)
     .then((user) => res.status(OK).send({ data: user }))
-    .catch(next);
+    .catch((err) => {
+      console.log('ERR', err, req.body);
+      next(err);
+    });
 };
 
 const getCurrentUser = (req, res, next) => {
@@ -63,8 +66,8 @@ const createUser = (req, res, next) => {
     .then((user) => res.status(OK).send({ data: user }))
     // если данные не записались, вернём ошибку
     .catch((err) => {
-      console.log('ERR', err, req.body);
-      if (err.code === 11000) {
+      // console.log('ERR', err, req.body);
+      if (err.code === 11000 || err.code === 11001) {
         const error = new ConflictError('Пользователь с таким email уже существует');
         return next(error);
       }
