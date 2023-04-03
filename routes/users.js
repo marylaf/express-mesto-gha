@@ -20,10 +20,6 @@ router.patch('/users/me/avatar', celebrate({
   }),
 }), updateAvatar);
 
-router.get('/users/me', celebrate({
-  body: Joi.object().keys({
-    cardId: Joi.string().length(24).hex(),
-  }),
-}), getCurrentUser);
+router.get('/users/me', getCurrentUser);
 
 module.exports = router; // экспортировали роутер

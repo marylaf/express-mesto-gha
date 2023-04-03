@@ -42,10 +42,13 @@ app.use('/', auth, cardRouter);
 
 const { PORT = 3000 } = process.env;
 
+app.use(auth);
 app.use((req, res, next) => {
   const error = new NotFound('Запрашиваемый ресурс не найден');
   return next(error);
 });
+
+app.use(errors());
 
 app.use((err, req, res, next) => {
   // если у ошибки нет статуса, выставляем 500
@@ -60,8 +63,6 @@ app.use((err, req, res, next) => {
     });
   next();
 });
-
-app.use(errors());
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
