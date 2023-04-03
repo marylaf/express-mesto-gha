@@ -7,6 +7,7 @@ const cardRouter = require('./routes/cards');
 const { createUser } = require('./controllers/users');
 const { login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const NotFound = require('./errors/not-found-err');
 
 const app = express();
 
@@ -21,7 +22,7 @@ app.post('/signin', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string(),
+    avatar: Joi.string().uri(),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
 
@@ -36,9 +37,16 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
+app.use('/', auth, userRouter);
+app.use('/', auth, cardRouter);
+
 const { PORT = 3000 } = process.env;
 
-app.use(errors());
+app.use((req, res, next) => {
+  const error = new NotFound('Запрашиваемый ресурс не найден');
+  return next(error);
+});
+
 app.use((err, req, res, next) => {
   // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
@@ -53,8 +61,7 @@ app.use((err, req, res, next) => {
   next();
 });
 
-app.use('/', auth, userRouter);
-app.use('/', auth, cardRouter);
+app.use(errors());
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

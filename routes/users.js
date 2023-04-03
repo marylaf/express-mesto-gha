@@ -16,12 +16,12 @@ router.patch('/users/me', celebrate({
 
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required(),
+    avatar: Joi.string().uri().required(),
   }),
 }), updateAvatar);
 
 router.get('/users/me', celebrate({
-  params: Joi.object().keys({
+  body: Joi.object().keys({
     cardId: Joi.string().length(24).hex(),
   }),
 }), getCurrentUser);

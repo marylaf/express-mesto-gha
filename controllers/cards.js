@@ -17,7 +17,7 @@ const createCard = (req, res, next) => {
   Card.create({ name, link, owner })
     .then((card) => res.status(CreateSmt).send({ data: card }))
     .catch((err) => {
-      // console.log("ERR", err, req.body);
+      // console.log('ERR', err, req.body);
       if (err.name === 'ValidationError') {
         const error = new BadRequest('Некорректный запрос');
         return next(error);
