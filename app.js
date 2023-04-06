@@ -8,6 +8,7 @@ const { createUser } = require('./controllers/users');
 const { login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const NotFound = require('./errors/not-found-err');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
 
@@ -16,6 +17,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
+app.use(requestLogger);
 app.use(express.json());
 
 app.post('/signin', celebrate({
@@ -42,14 +44,13 @@ app.use('/', auth, cardRouter);
 
 const { PORT = 3000 } = process.env;
 
+app.use(errorLogger);
 app.use(auth);
 app.use((req, res, next) => {
   const error = new NotFound('Запрашиваемый ресурс не найден');
   return next(error);
 });
-
 app.use(errors());
-
 app.use((err, req, res, next) => {
   // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
